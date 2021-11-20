@@ -8,10 +8,15 @@
 
 :root {
 	--brand: hsla(250, 50%, 4%, 1);
+	--brand-light: hsla(250, 50%, 14%, 1);
+	--brand-lighter: hsla(250, 50%, 20%, 1);
+	--brand-lightest: hsla(250, 50%, 30%, 1);
 	--primary: hsla(0, 0%, 0%, 1);
 	--primary-light: hsla(0, 0%, 5%, 1);
-	--secondary: hsla(0, 100%, 100%, 1);
-	--secondary-dark: hsla(0, 100%, 95%, 1);
+	--secondary: hsla(0, 0%, 100%, 1);
+	--secondary-dark: hsla(0, 0%, 90%, 1);
+	--secondary-darker: hsla(0, 0%, 80%, 1);
+	--neutral: hsla(0, 100%, 95%, 1);
 }
 
 body {
