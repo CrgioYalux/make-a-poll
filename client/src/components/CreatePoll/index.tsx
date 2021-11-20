@@ -61,7 +61,13 @@ export const CreatePoll = ({}: CreatePollProps) => {
 					+
 				</button>
 			</form>
-			<ul className="poll-options-list">
+			<ul
+				className={
+					pollOptions.length
+						? 'poll-options-list _not_empty'
+						: 'poll-options-list _empty'
+				}
+			>
 				{pollOptions.map(({ text, id }, index) => (
 					<li key={id} className="poll-option">
 						<span className="option-index">#{index + 1}</span>
