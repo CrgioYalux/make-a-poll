@@ -1,10 +1,10 @@
 import './App.css';
+import { CreatePoll } from '../CreatePoll';
 
 export const App = () => {
 	return (
 		<div className="App">
-			<strong>bonsoir</strong>
-			<small>elliot</small>
+			<CreatePoll />
 		</div>
 	);
 };

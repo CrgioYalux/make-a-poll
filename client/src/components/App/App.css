@@ -1,14 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
-
 .App {
+	background-color: var(--brand);
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	font-family: 'Inter', sans-serif;
-}
-
-.App > strong {
-	font-size: clamp(1rem, 8vw, 4rem);
 }
