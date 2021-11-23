@@ -1,26 +1,54 @@
 .CreatePoll-container {
 	width: 95vw;
 	min-height: 100vh;
-	max-width: 400px;
+	max-width: 600px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 10px;
-	font-size: clamp(1rem, 4vw, 1.4rem);
+	gap: 20px;
 }
 
-.CreatePoll-container h3 {
+.poll-title,
+.poll-timer,
+.poll-options {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	font-size: clamp(1rem, 4vw, 1.3rem);
+	color: var(--secondary);
+}
+
+.poll-title-text,
+.add-timer-text,
+.add-options-text {
+	font-family: var(--font-inter-ss);
+	color: var(--neutral);
+	font-size: 1em;
+	font-weight: 800;
+	user-select: none;
+}
+
+.poll-title-text {
+	font-size: 1.1em;
+}
+
+.add-timer-text {
+	cursor: pointer;
+}
+
+.poll-title {
 	margin-top: auto;
 }
 
-.CreatePoll-container h3,
-.CreatePoll-container h4 {
-	font-family: var(--font-inter-ss);
-	color: var(--neutral);
+.poll-options {
+	margin-bottom: auto;
 }
 
-.CreatePoll-container form {
+.poll-options form {
 	width: 100%;
 	position: relative;
 	display: grid;
@@ -29,10 +57,10 @@
 
 .poll-option-add-bt {
 	border: 0;
+	padding: 0;
 	height: 70%;
 	position: absolute;
 	right: 5px;
-	padding: 0;
 	font-size: 0.9rem;
 	font-weight: bold;
 	aspect-ratio: 1;
@@ -40,10 +68,6 @@
 	cursor: pointer;
 	color: var(--primary);
 	background: var(--secondary-dark);
-}
-
-.poll-option-add-bt:focus {
-	outline-offset: 5px;
 }
 
 .poll-input {
@@ -58,42 +82,39 @@
 	background: var(--neutral);
 }
 
-.poll-input:focus {
-	outline-offset: 5px;
-}
-
 .poll-input::selection {
 	background: var(--primary);
 	color: var(--secondary-dark);
 }
 
 .poll-create-bt {
-	margin-bottom: 20px;
+	margin-bottom: 10px;
 	background: transparent;
 	color: var(--secondary-dark);
 	border: 2px solid currentColor;
 	border-radius: 16px;
 	cursor: pointer;
-	font-size: 1em;
+	font-size: 1.2em;
 	padding: 0.2em 0.4em;
 	opacity: 1;
-	transition: opacity 0.4s;
+	transition: opacity 0.2s;
 }
 
 .poll-create-bt:disabled {
 	opacity: 0.2;
 	cursor: default;
-	transition: opacity 0.4s;
+	transition: opacity 0.2s;
 }
 
-.poll-create-bt:focus {
+.poll-create-bt:focus,
+.poll-option-add-bt:focus,
+.poll-input:focus {
 	outline-offset: 5px;
 }
 
 .poll-options-list {
 	width: 100%;
 	margin-top: 10px;
-	margin-bottom: auto;
 	max-height: 40vh;
 	min-height: 20px;
 	overflow-x: auto;
@@ -154,7 +175,7 @@
 	margin-right: auto;
 	margin-left: 10px;
 	font-size: 0.9em;
-	font-family: Arial;
+	font-family: var(--font-roboto-ss);
 }
 
 .option-delete-bt {
@@ -165,7 +186,81 @@
 	background: transparent;
 	cursor: pointer;
 	font-size: 0.8em;
-	font-family: Arial;
+	font-family: var(--font-roboto-ss);
+}
+
+.poll-timer {
+	width: 100%;
+	max-width: 350px;
+	display: grid;
+	place-items: center;
+	font-size: clamp(0.9rem, 4vw. 1.2rem);
+}
+
+.poll-timer > label {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+}
+
+.poll-timer-setter._not_using_timer {
+	position: relative;
+}
+
+.poll-timer-setter._not_using_timer::before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 100%;
+	height: 100%;
+	background: transparent;
+}
+
+.poll-timer-setter._not_using_timer {
+	opacity: 0.2;
+}
+
+.poll-timer-setter label {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+}
+
+.poll-timer-input {
+	margin-right: auto;
+	width: 3ch;
+	border: 0;
+	outline: 0;
+	font-size: 1em;
+	font-weight: 800;
+	font-family: var(--font-roboto-ss);
+	background: var(--secondary);
+	color: var(--primary);
+	border-radius: 3px;
+	padding: 0 0.2em;
+}
+
+.poll-timer-input::selection {
+	background: var(--primary);
+	color: var(--secondary);
+}
+
+.poll-timer-input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.poll-timer-input[type='number'] {
+	-moz-appearance: textfield;
 }
 
 @media (min-width: 1024px) {
