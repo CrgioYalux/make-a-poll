@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 *,
 *::before,
 *::after {
@@ -17,6 +20,9 @@
 	--secondary-dark: hsla(0, 0%, 90%, 1);
 	--secondary-darker: hsla(0, 0%, 80%, 1);
 	--neutral: hsla(0, 100%, 95%, 1);
+
+	--font-inter-ss: 'Inter', sans-serif;
+	--font-roboto-ss: 'Roboto', sans-serif;
 }
 
 body {
