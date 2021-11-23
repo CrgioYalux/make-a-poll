@@ -1,9 +1,12 @@
 import { useState, useRef, SyntheticEvent } from 'react';
+import { Poll } from '../App/utils';
+import { generateKey } from './utils';
 import './CreatePoll.css';
+interface CreatePollProps {
+	setPoll: React.Dispatch<React.SetStateAction<Poll | null>>;
+}
 
-interface CreatePollProps {}
-
-export const CreatePoll = ({}: CreatePollProps) => {
+export const CreatePoll = ({ setPoll }: CreatePollProps) => {
 	const [pollTitle, setPollTitle] = useState<string>('');
 	const [pollOptions, setPollOptions] = useState<
 		{ text: string; id: string }[]
@@ -15,7 +18,10 @@ export const CreatePoll = ({}: CreatePollProps) => {
 		if (addOptionInputRef.current) {
 			const value = addOptionInputRef.current.value.trim();
 			if (value && !pollOptions.find((el) => el.text === value)) {
-				setPollOptions((prev) => [...prev, { text: value, id: value }]);
+				setPollOptions((prev) => [
+					...prev,
+					{ text: value, id: generateKey(value) },
+				]);
 				addOptionInputRef.current.value = '';
 			} else {
 				addOptionInputRef.current.classList.add('_error');
@@ -33,6 +39,15 @@ export const CreatePoll = ({}: CreatePollProps) => {
 			(el) => el.text !== text && el.id !== id,
 		);
 		setPollOptions(_pollOptions);
+	};
+
+	const createPoll = () => {
+		if (pollTitle && pollOptions.length !== 0) {
+			setPoll({
+				title: pollTitle,
+				options: pollOptions,
+			});
+		}
 	};
 
 	const isValidPoll = Boolean(pollTitle && pollOptions.length !== 0);
@@ -81,7 +96,11 @@ export const CreatePoll = ({}: CreatePollProps) => {
 					</li>
 				))}
 			</ul>
-			<button disabled={!isValidPoll} className="poll-create-bt">
+			<button
+				disabled={!isValidPoll}
+				className="poll-create-bt"
+				onClick={createPoll}
+			>
 				create poll
 			</button>
 		</div>

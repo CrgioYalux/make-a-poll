@@ -1,0 +1,95 @@
+.DisplayPoll-container {
+	width: 100%;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	align-items: center;
+}
+
+.DisplayPoll-container._no_voted h2 {
+	font-size: clamp(1rem, 4vw, 2.4rem);
+	font-family: var(--font-inter-ss);
+	color: var(--secondary);
+}
+
+.DisplayPoll-container._voted {
+	justify-content: center;
+	font-family: var(--font-inter-ss);
+	color: var(--secondary);
+}
+
+.voted-message {
+	width: 90%;
+}
+
+.voting-form {
+	width: 100%;
+	max-width: 600px;
+	display: grid;
+	place-items: center;
+	gap: 10px;
+}
+
+.vote-options-list {
+	height: max-context;
+	max-height: 300px;
+	width: 90%;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.vote-option {
+	width: 100%;
+	border-radius: 5px;
+	background: var(--brand-light);
+	font-size: clamp(1rem, 4vw, 1.2rem);
+	padding: 0.4em 0.6em;
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	cursor: pointer;
+	user-select: none;
+}
+
+.vote-option-text {
+	color: var(--secondary);
+	font-family: var(--font-roboto-ss);
+	width: 70%;
+}
+
+.select-option-bt {
+	margin-left: auto;
+}
+
+.submit-option-bt {
+	border: 0;
+	outline: 0;
+	background: var(--brand-light);
+	cursor: pointer;
+	color: var(--secondary);
+	font-size: clamp(1.2rem, 4vw, 2rem);
+	font-family: var(--font-roboto-ss);
+	font-weight: bolder;
+	border-radius: 9px;
+	padding: 0.2em 0.8em;
+}
+
+.submit-option-bt:disabled {
+	cursor: default;
+	opacity: 0.5;
+}
+
+@media (min-width: 1024px) {
+	.vote-option:hover {
+		background: var(--brand-lighter);
+		transition: background-color 0.3s;
+	}
+	.submit-option-bt:not(:disabled):hover {
+		background: var(--brand-lighter);
+		transition: background-color 0.3s;
+	}
+}
