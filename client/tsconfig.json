@@ -15,7 +15,8 @@
 		"isolatedModules": true,
 		"allowUmdGlobalAccess": true,
 		"noEmit": true,
-		"jsx": "react-jsx"
+		"jsx": "react-jsx",
+		"downlevelIteration": true
 	},
 	"include": ["src"]
 }
