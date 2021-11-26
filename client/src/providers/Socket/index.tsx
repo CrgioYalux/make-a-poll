@@ -1,6 +1,5 @@
 import io, { Socket } from 'socket.io-client';
 import { createContext, useContext, useState, useEffect } from 'react';
-import { Poll } from '../../components/App/utils';
 
 interface SocketContextProps {
 	socket: Socket | null;
@@ -17,30 +16,32 @@ interface SocketProviderProps {
 	children: React.ReactNode;
 	pollID: string;
 	path: string;
-	setPoll: React.Dispatch<React.SetStateAction<Poll | null>>;
 }
 export const SocketProvider = ({
 	children,
 	pollID,
 	path,
-	setPoll,
 }: SocketProviderProps) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [socketID, setSocketID] = useState<string>('');
 
 	useEffect(() => {
-		const socketConnection = io('/', {
-			transports: ['websocket', 'polling', 'flashsocket'],
-			path,
-			query: {
-				pollID,
-			},
-		});
-		setSocket(socketConnection);
-		return () => {
-			socketConnection.close();
-		};
-	}, [pollID]);
+		if (path && pollID) {
+			const socketConnection = io('http://localhost:5000', {
+				// when NODE_ENV=dev, proxy just isn't enough, manually setting the domain is needed
+				transports: ['websocket', 'polling', 'flashsocket'],
+				path,
+				query: {
+					pollID,
+				},
+			});
+			setSocket(socketConnection);
+			console.log(socketConnection);
+			return () => {
+				socketConnection.close();
+			};
+		}
+	}, [pollID, path]);
 
 	useEffect(() => {
 		if (socket === null) return;

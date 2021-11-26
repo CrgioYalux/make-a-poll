@@ -33,6 +33,7 @@ const mockPoll: Poll = {
 
 export const PollVoterMode = ({}: PollVoterModeProps) => {
 	const [poll, setPoll] = useState<Poll | null>(null);
+	const [pollID, setPollID] = useState<string>('');
 	const [fetchState, setFetchState] = useState<FetchState>(
 		FetchState.NotStarted,
 	);
@@ -40,11 +41,11 @@ export const PollVoterMode = ({}: PollVoterModeProps) => {
 	useEffect(() => {
 		const queryString = window.location.search;
 		const params = new URLSearchParams(queryString);
-		const pollID = params.get('pollID');
-		console.log(pollID);
-		if (pollID) {
+		const _pollID = params.get('pollID');
+		if (_pollID) {
 			setFetchState(FetchState.Loading);
-			getPollByID(pollID)
+			setPollID(_pollID);
+			getPollByID(_pollID)
 				.then((response) => {
 					if (response.data.poll) {
 						setPoll(response.data.poll);
@@ -60,6 +61,8 @@ export const PollVoterMode = ({}: PollVoterModeProps) => {
 	return !poll ? (
 		<span style={{ color: 'white' }}>loading...</span>
 	) : (
-		<DisplayPollForVoter poll={poll} />
+		<SocketProvider pollID={pollID} path="/socket/">
+			<DisplayPollForVoter poll={poll} />
+		</SocketProvider>
 	);
 };
