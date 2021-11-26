@@ -5,13 +5,12 @@ import path from 'path';
 import { Server, Socket } from 'socket.io';
 import { v4 } from 'uuid';
 
-const app = express();
-
 const pathToBuild =
 	process.env.NODE_ENV === 'dev'
 		? path.join(__dirname, '..', '..', 'client', 'build')
 		: path.join(__dirname, '..', '..', '..', 'client', 'build');
 
+const app = express();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,7 +26,7 @@ export type Poll = {
 	}[];
 	voters: {
 		adress: string;
-		socket: Socket;
+		socketID: string;
 	}[];
 	timer:
 		| {
@@ -98,12 +97,95 @@ const io = new Server(server, {
 	serveClient: false,
 });
 
-io.on('connection', (socket) => {
-	const { pollID } = socket.handshake.query;
-	console.log(pollID);
-});
+enum VotingProcessState {
+	Error_AlreadyVoted = 'ERROR_ALREADYVOTED',
+	Error_PollNotFound = 'ERROR_POLLNOTFOUND',
+	Error_PollEnded = 'ERROR_POLLENDED',
+	Error_BadRequest = 'ERROR_BADREQUEST',
+	SuccessfullyVoted = 'SUCCESSFULLYVOTED',
+}
 
+io.on('connection', (socket) => {
+	const { pollID } = socket.handshake.query as {
+		pollID: string;
+	};
+	const { remoteAddress } = socket.request.socket;
+	const { id } = socket;
+	socket.on('client-vote', (data) => {
+		const _data = JSON.parse(data) as {
+			vote: {
+				id: string;
+			};
+		};
+		if (_data.vote && pollID && remoteAddress) {
+			const poll = polls.get(pollID);
+			if (poll) {
+				if (!poll.done) {
+					const { voters, votes, ...rest } = poll;
+					const alreadyVoted = voters.find(
+						({ adress }) => adress === remoteAddress,
+					);
+					if (!alreadyVoted) {
+						const _votes = votes.map((vote) => {
+							if (_data.vote.id === vote.id) {
+								return {
+									option: vote.option,
+									id: vote.id,
+									numOfVotes: vote.numOfVotes + 1,
+								};
+							}
+							return vote;
+						});
+						const _voters = [
+							{ adress: remoteAddress, socketID: id },
+							...voters,
+						];
+						polls.set(pollID, {
+							voters: _voters,
+							votes: _votes,
+							...rest,
+						});
+						socket.emit(
+							'vote-state',
+							JSON.stringify({
+								votingState: VotingProcessState.SuccessfullyVoted,
+							}),
+						);
+						console.log(_voters);
+						console.log(_votes);
+					} else {
+						socket.emit(
+							'vote-state',
+							JSON.stringify({
+								votingState: VotingProcessState.Error_AlreadyVoted,
+							}),
+						);
+					}
+				} else {
+					socket.emit(
+						'vote-state',
+						JSON.stringify({ votingState: VotingProcessState.Error_PollEnded }),
+					);
+				}
+			} else {
+				socket.emit(
+					'vote-state',
+					JSON.stringify({
+						votingState: VotingProcessState.Error_PollNotFound,
+					}),
+				);
+			}
+		} else {
+			socket.emit(
+				'vote-state',
+				JSON.stringify({ votingState: VotingProcessState.Error_BadRequest }),
+			);
+		}
+	});
+});
+``;
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-	console.log(`Listening on port ${PORT}`);
+	console.log(`server listening on ${PORT}`);
+	console.log(`socket listening on ${PORT}/socket`);
 });
