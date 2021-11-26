@@ -1,23 +1,12 @@
 import './App.css';
-import { CreatePoll } from '../CreatePoll';
 import { useState } from 'react';
-import { Poll, TypeOfClient } from './utils';
-import { DisplayPollForVoter } from '../DisplayPollForVoter';
-import { ClientProvider } from '../../providers/Client';
-
-const mockPoll = {
-	title: 'is this a mock poll?',
-	options: [
-		{ text: 'yes', id: 'yes' },
-		{ text: 'no', id: 'no' },
-	],
-	timer: null,
-};
+import { TypeOfClient } from './utils';
+import { PollCreatorMode } from '../PollCreatorMode';
+import { PollVoterMode } from '../PollVoterMode';
 
 export const App = () => {
-	const [poll, setPoll] = useState<Poll | null>(null);
 	const [clientMode, setClientMode] = useState<TypeOfClient>(
-		TypeOfClient.Creator,
+		TypeOfClient.NotSet,
 	);
 	if (clientMode === TypeOfClient.NotSet) {
 		return (
@@ -40,15 +29,11 @@ export const App = () => {
 			</div>
 		);
 	}
+
 	return (
 		<div className="App">
-			<ClientProvider typeOfClient={clientMode}>
-				{!poll ? (
-					<CreatePoll setPoll={setPoll} />
-				) : (
-					<DisplayPollForVoter poll={poll} />
-				)}
-			</ClientProvider>
+			{clientMode === TypeOfClient.Creator && <PollCreatorMode />}
+			{clientMode === TypeOfClient.Voter && <PollVoterMode />}
 		</div>
 	);
 };

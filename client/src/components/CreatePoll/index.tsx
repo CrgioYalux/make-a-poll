@@ -9,7 +9,7 @@ interface CreatePollProps {
 export const CreatePoll = ({ setPoll }: CreatePollProps) => {
 	const [pollTitle, setPollTitle] = useState<string>('');
 	const [pollOptions, setPollOptions] = useState<
-		{ text: string; id: string }[]
+		{ option: string; numOfVotes: number; id: string }[]
 	>([]);
 	const addOptionInputRef = useRef<HTMLInputElement | null>(null);
 	const [usingTimer, setUsingTimer] = useState<boolean>(false);
@@ -20,10 +20,10 @@ export const CreatePoll = ({ setPoll }: CreatePollProps) => {
 		event.preventDefault();
 		if (addOptionInputRef.current) {
 			const value = addOptionInputRef.current.value.trim();
-			if (value && !pollOptions.find((el) => el.text === value)) {
+			if (value && !pollOptions.find(({ option }) => option === value)) {
 				setPollOptions((prev) => [
 					...prev,
-					{ text: value, id: generateKey(value) },
+					{ option: value, id: generateKey(value), numOfVotes: 0 },
 				]);
 				addOptionInputRef.current.value = '';
 			} else {
@@ -37,9 +37,9 @@ export const CreatePoll = ({ setPoll }: CreatePollProps) => {
 		}
 	};
 
-	const deleteOption = ({ text, id }: { text: string; id: string }) => {
+	const deleteOption = ({ option, id }: { option: string; id: string }) => {
 		const _pollOptions = pollOptions.filter(
-			(el) => el.text !== text && el.id !== id,
+			(el) => el.option !== option && el.id !== id,
 		);
 		setPollOptions(_pollOptions);
 	};
@@ -48,8 +48,9 @@ export const CreatePoll = ({ setPoll }: CreatePollProps) => {
 		if (pollTitle && pollOptions.length !== 0) {
 			setPoll({
 				title: pollTitle,
-				options: pollOptions,
-				timer: usingTimer ? { minutes, seconds } : null,
+				votes: pollOptions,
+				timer: usingTimer ? { minutes, seconds } : false,
+				done: false,
 			});
 		}
 	};
@@ -145,13 +146,13 @@ export const CreatePoll = ({ setPoll }: CreatePollProps) => {
 							: 'poll-options-list _empty'
 					}
 				>
-					{pollOptions.map(({ text, id }, index) => (
+					{pollOptions.map(({ option, id }, index) => (
 						<li key={id} className="poll-option">
 							<span className="option-index">#{index + 1}</span>
-							<small className="option-text">{text}</small>
+							<small className="option-text">{option}</small>
 							<button
 								className="option-delete-bt"
-								onClick={() => deleteOption({ text, id })}
+								onClick={() => deleteOption({ option, id })}
 							>
 								x
 							</button>

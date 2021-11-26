@@ -1,4 +1,4 @@
-import './DisplayPoll.css';
+import './DisplayPollForVoter.css';
 import { Poll } from '../App/utils';
 import { useState, SyntheticEvent } from 'react';
 
@@ -9,8 +9,8 @@ interface DisplayPollProps {
 export const DisplayPollForVoter = ({ poll }: DisplayPollProps) => {
 	const [votes, setVotes] = useState<Map<string, number>>(() => {
 		const _votes = new Map<string, number>();
-		poll.options.map(({ text }) => {
-			_votes.set(text, 0);
+		poll.votes.map(({ option }) => {
+			_votes.set(option, 0);
 		});
 		return _votes;
 	});
@@ -43,20 +43,20 @@ export const DisplayPollForVoter = ({ poll }: DisplayPollProps) => {
 				{/* timer here */}
 				<form className="voting-form" onSubmit={handleSubmit}>
 					<div className="vote-options-list">
-						{poll.options.map((option) => (
+						{poll.votes.map(({ id, option }) => (
 							<label
-								key={option.id}
-								htmlFor={`vote_option_${option.id}`}
+								key={id}
+								htmlFor={`vote_option_${id}`}
 								className="vote-option"
 							>
-								<span className="vote-option-text">{option.text}</span>
+								<span className="vote-option-text">{option}</span>
 								<input
 									name="vote_option"
 									type="radio"
-									id={`vote_option_${option.id}`}
+									id={`vote_option_${id}`}
 									className="select-option-bt"
-									value={option.text}
-									onChange={() => setOptionSelected(option.text)}
+									value={option}
+									onChange={() => setOptionSelected(option)}
 								/>
 							</label>
 						))}

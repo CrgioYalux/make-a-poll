@@ -1,13 +1,17 @@
 export type Poll = {
 	title: string;
-	options: {
-		text: string;
+	votes: {
+		option: string;
+		numOfVotes: number;
 		id: string;
 	}[];
-	timer: {
-		minutes: number;
-		seconds: number;
-	} | null;
+	timer:
+		| {
+				minutes: number;
+				seconds: number;
+		  }
+		| false;
+	done: boolean;
 };
 
 export enum TypeOfClient {
