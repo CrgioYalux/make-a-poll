@@ -8,16 +8,65 @@
 	color: var(--secondary);
 }
 
-.DisplayPollForCreator-container h2 {
-	width: 90%;
-	text-align: center;
-	font-size: clamp(1rem, 4vw, 2.4rem);
+.poll-info {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 5px;
 }
 
-.DisplayPollForCreator-container h3 {
-	width: 90%;
+.poll-info__title {
 	text-align: center;
-	font-size: clamp(0.9rem, 4vw, 2.2rem);
+	width: 90%;
+	font-size: clamp(1rem, 4vw, 2rem);
+}
+
+.poll-info__id--container {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 5px;
+	font-size: 0.9rem;
+}
+
+.timer-container {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+}
+
+.timer-container__time-displayer {
+	background: var(--secondary);
+	color: var(--primary);
+	font-size: clamp(1rem, 4vw, 1.4rem);
+	padding: 0.2em 0.4em;
+	border-radius: 5px;
+}
+
+.timer-container__controllers {
+	display: flex;
+	flex-direction: row;
+	gap: 5px;
+}
+
+.timer-container__controllers button {
+	border: 0;
+	outline: 0;
+	cursor: pointer;
+	background: transparent;
+	color: var(--secondary);
+	border: 2px solid currentColor;
+	font-size: clamp(0.9rem, 4vw, 1.2rem);
+	padding: 0.2em 0.4em;
+	width: 100px;
+}
+
+.timer-container__controllers button:disabled {
+	opacity: 0.4;
+	cursor: default;
 }
 
 .DisplayPollForCreator-container .votes-list {
