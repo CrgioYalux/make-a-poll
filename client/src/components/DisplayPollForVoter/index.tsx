@@ -24,7 +24,6 @@ export const DisplayPollForVoter = ({ poll }: DisplayPollProps) => {
 		if (socket === null) return;
 		socket.on('vote-state', (data) => {
 			const _data = JSON.parse(data);
-			console.log(_data);
 			if (_data.votingState) {
 				setVoteState(_data.votingState);
 			} else {
