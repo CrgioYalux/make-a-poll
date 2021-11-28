@@ -111,6 +111,9 @@ io.on('connection', (socket) => {
 	};
 	const { remoteAddress } = socket.request.socket;
 	const { id } = socket;
+
+	socket.join(pollID);
+
 	socket.on('client-vote', (data) => {
 		const _data = JSON.parse(data) as {
 			vote: {
@@ -121,7 +124,7 @@ io.on('connection', (socket) => {
 			const poll = polls.get(pollID);
 			if (poll) {
 				if (!poll.done) {
-					const { voters, votes, ...rest } = poll;
+					const { voters, votes, author, ...rest } = poll;
 					const alreadyVoted = voters.find(
 						({ adress }) => adress === remoteAddress,
 					);
@@ -143,12 +146,22 @@ io.on('connection', (socket) => {
 						polls.set(pollID, {
 							voters: _voters,
 							votes: _votes,
+							author,
 							...rest,
 						});
 						socket.emit(
 							'vote-state',
 							JSON.stringify({
 								votingState: VotingProcessState.SuccessfullyVoted,
+							}),
+						);
+						socket.broadcast.to(pollID).emit(
+							'client-vote',
+							JSON.stringify({
+								poll: {
+									votes: _votes,
+									...rest,
+								},
 							}),
 						);
 						console.log(_voters);
