@@ -5,6 +5,7 @@ import { useSocket } from '../../providers/Socket';
 
 interface DisplayPollProps {
 	poll: Poll;
+	setPoll: React.Dispatch<React.SetStateAction<Poll | null>>;
 }
 
 enum VotingProcessState {
@@ -15,7 +16,7 @@ enum VotingProcessState {
 	SuccessfullyVoted = 'SUCCESSFULLYVOTED',
 }
 
-export const DisplayPollForVoter = ({ poll }: DisplayPollProps) => {
+export const DisplayPollForVoter = ({ poll, setPoll }: DisplayPollProps) => {
 	const [optionSelected, setOptionSelected] = useState<string>('');
 	const [voteState, setVoteState] = useState<VotingProcessState | null>(null);
 	const { socket } = useSocket();
@@ -32,6 +33,19 @@ export const DisplayPollForVoter = ({ poll }: DisplayPollProps) => {
 		});
 		return () => {
 			socket.off('vote-state');
+		};
+	});
+
+	useEffect(() => {
+		if (socket === null) return;
+		socket.on('poll-ended', (data) => {
+			const _data = JSON.parse(data);
+			if (_data.poll) {
+				setPoll(_data.poll);
+			}
+		});
+		return () => {
+			socket.off('poll-ended');
 		};
 	});
 
@@ -52,74 +66,89 @@ export const DisplayPollForVoter = ({ poll }: DisplayPollProps) => {
 		if (optionSelected) vote();
 	};
 
-	return (
-		<>
-			{voteState === null && (
-				<div className="DisplayPoll-container _not_voted">
-					<h2>{poll.title}</h2>
-					<form className="voting-form" onSubmit={handleSubmit}>
-						<div className="vote-options-list">
-							{poll.votes.map(({ id, option }) => (
-								<label
-									key={id}
-									htmlFor={`vote_option_${id}`}
-									className="vote-option"
-								>
-									<span className="vote-option-text">{option}</span>
-									<input
-										name="vote_option"
-										type="radio"
-										id={`vote_option_${id}`}
-										className="select-option-bt"
-										value={option}
-										onChange={() => setOptionSelected(option)}
-									/>
-								</label>
-							))}
-						</div>
-						<button
-							type="submit"
-							className="submit-option-bt"
-							disabled={!optionSelected}
-						>
-							vote
-						</button>
-					</form>
-				</div>
-			)}
-			{voteState === VotingProcessState.SuccessfullyVoted && (
-				<div className="DisplayPoll-container _voted">
-					<h2>Successfully Voted!</h2>
-					<h3>
-						The results will be displayed when the poll goes off or when the
-						poll's creator ends it
-					</h3>
-				</div>
-			)}
-			{voteState === VotingProcessState.Error_AlreadyVoted && (
-				<div className="DisplayPoll-container _error">
-					<h2>An error has occurred</h2>
-					<h3>reason: you already voted</h3>
-				</div>
-			)}
-			{voteState === VotingProcessState.Error_PollEnded && (
-				<div className="DisplayPoll-container _error">
-					<h2>An error has occurred</h2>
-					<h3>reason: poll ended</h3>
-				</div>
-			)}
-			{voteState === VotingProcessState.Error_PollNotFound && (
-				<div className="DisplayPoll-container _error">
-					<h2>An error has occurred</h2>
-					<h3>reason: poll not found</h3>
-				</div>
-			)}
-			{voteState === VotingProcessState.Error_BadRequest && (
-				<div className="DisplayPoll-container _error">
-					<h2>An error has occurred</h2>
-					<h3>reason: bad request</h3>
-				</div>
-			)}
-		</>
-	);
+	if (!poll.done)
+		return (
+			<>
+				{voteState === null && (
+					<div className="DisplayPoll-container --not-ended">
+						<h2>{poll.title}</h2>
+						<form className="voting-form" onSubmit={handleSubmit}>
+							<div className="vote-options-list">
+								{poll.votes.map(({ id, option }) => (
+									<label
+										key={id}
+										htmlFor={`vote_option_${id}`}
+										className="vote-option"
+									>
+										<span className="vote-option-text">{option}</span>
+										<input
+											name="vote_option"
+											type="radio"
+											id={`vote_option_${id}`}
+											className="select-option-bt"
+											value={option}
+											onChange={() => setOptionSelected(option)}
+										/>
+									</label>
+								))}
+							</div>
+							<button
+								type="submit"
+								className="submit-option-bt"
+								disabled={!optionSelected}
+							>
+								vote
+							</button>
+						</form>
+					</div>
+				)}
+				{voteState !== null && (
+					<div className="DisplayPoll-container">
+						{voteState === VotingProcessState.SuccessfullyVoted ? (
+							<>
+								<h2>Successfully Voted!</h2>
+								<h3>
+									The results will be displayed when the poll goes off or when
+									the poll's creator ends it
+								</h3>
+							</>
+						) : (
+							<>
+								{voteState === VotingProcessState.Error_AlreadyVoted && (
+									<h3>reason: you already voted</h3>
+								)}
+								{voteState === VotingProcessState.Error_PollEnded && (
+									<h3>reason: poll ended</h3>
+								)}
+								{voteState === VotingProcessState.Error_PollNotFound && (
+									<h3>reason: poll not found</h3>
+								)}
+								{voteState === VotingProcessState.Error_BadRequest && (
+									<h3>reason: bad request</h3>
+								)}
+							</>
+						)}
+					</div>
+				)}
+			</>
+		);
+	else {
+		let maxNumOfVotes = 0;
+		let winnerOption = 'no-option-voted';
+		for (const vote of poll.votes) {
+			if (vote.numOfVotes > maxNumOfVotes) {
+				maxNumOfVotes = vote.numOfVotes;
+				winnerOption = vote.option;
+			}
+		}
+		return (
+			<div className="DisplayPoll-container --ended">
+				<h2>Poll ended!</h2>
+				<h3>{poll.title}</h3>
+				<h3>
+					wins [{winnerOption}] with [{maxNumOfVotes}] votes
+				</h3>
+			</div>
+		);
+	}
 };
