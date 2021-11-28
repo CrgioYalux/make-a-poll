@@ -48,8 +48,8 @@ export const useTimer = ({
 	};
 
 	const restartCounting = (): void => {
-		setSeconds(0);
-		setMinutes(0);
+		setSeconds(from.seconds);
+		setMinutes(from.minutes);
 	};
 
 	const addTimeOnRunning = (add: number): boolean => {
@@ -104,5 +104,73 @@ export const useTimer = ({
 		restartTimer: restartCounting,
 		addTimeOnRunning,
 		isTimerRunning: counterRunning,
+	};
+};
+
+export interface useCountdownValues {
+	countdown: Time;
+	stopCountdown: () => void;
+	startCountdown: () => void;
+	restartCountdown: () => void;
+	isCountdownRunning: boolean;
+}
+export interface useCountdownProps {
+	from?: Time;
+	to?: Time;
+	autostart?: boolean;
+}
+
+export const useCountdown = ({
+	from = { seconds: 0, minutes: 5 },
+	to = { seconds: 0, minutes: 0 },
+	autostart = false,
+}: useCountdownProps): useCountdownValues => {
+	const [seconds, setSeconds] = useState(from.seconds);
+	const [minutes, setMinutes] = useState(from.minutes);
+	const [counterRunning, setCounterRunning] = useState<boolean>(autostart);
+
+	const counterRef = useRef<NodeJS.Timeout | null>(null);
+
+	const stopCounting = () => {
+		counterRef.current && clearInterval(counterRef.current);
+		setCounterRunning(false);
+	};
+
+	const startCounting = () => {
+		setCounterRunning(true);
+	};
+
+	const restartCounting = () => {
+		setSeconds(from.seconds);
+		setMinutes(from.minutes);
+	};
+
+	useEffect(() => {
+		counterRef.current && clearInterval(counterRef.current);
+		counterRef.current = setInterval(() => {
+			setSeconds((s) => s - 1);
+		}, 1000);
+		return () => {
+			stopCounting();
+		};
+	}, []);
+
+	useEffect(() => {
+		seconds === to.seconds && minutes === to.minutes
+			? stopCounting()
+			: !seconds &&
+			  minutes &&
+			  (() => {
+					setMinutes((m) => m - 1);
+					setSeconds(59);
+			  })();
+	}, [to, seconds, minutes]);
+
+	return {
+		countdown: { seconds, minutes },
+		stopCountdown: stopCounting,
+		startCountdown: startCounting,
+		restartCountdown: restartCounting,
+		isCountdownRunning: counterRunning,
 	};
 };
