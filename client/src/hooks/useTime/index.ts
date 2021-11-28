@@ -146,14 +146,21 @@ export const useCountdown = ({
 	};
 
 	useEffect(() => {
-		counterRef.current && clearInterval(counterRef.current);
-		counterRef.current = setInterval(() => {
-			setSeconds((s) => s - 1);
-		}, 1000);
-		return () => {
-			stopCounting();
-		};
-	}, []);
+		if (autostart) startCounting();
+		return () => stopCounting();
+	}, [autostart]);
+
+	useEffect(() => {
+		if (counterRunning) {
+			counterRef.current && clearInterval(counterRef.current);
+			counterRef.current = setInterval(() => {
+				setSeconds((s) => s - 1);
+			}, 1000);
+			return () => {
+				stopCounting();
+			};
+		}
+	}, [counterRunning]);
 
 	useEffect(() => {
 		seconds === to.seconds && minutes === to.minutes
