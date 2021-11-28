@@ -164,8 +164,6 @@ io.on('connection', (socket) => {
 								},
 							}),
 						);
-						console.log(_voters);
-						console.log(_votes);
 					} else {
 						socket.emit(
 							'vote-state',
@@ -195,10 +193,16 @@ io.on('connection', (socket) => {
 			);
 		}
 	});
+
+	socket.on('poll-ended', () => {
+		const poll = polls.get(pollID);
+		if (poll) {
+			poll.done = true;
+		}
+		socket.broadcast.to(pollID).emit('poll-ended', JSON.stringify({ poll }));
+	});
 });
-``;
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
 	console.log(`server listening on ${PORT}`);
-	console.log(`socket listening on ${PORT}/socket`);
 });
