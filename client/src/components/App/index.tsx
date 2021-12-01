@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TypeOfClient } from './utils';
 import { PollCreatorMode } from '../PollCreatorMode';
 import { PollVoterMode } from '../PollVoterMode';
@@ -8,6 +8,18 @@ export const App = () => {
 	const [clientMode, setClientMode] = useState<TypeOfClient>(
 		TypeOfClient.NotSet,
 	);
+	const [pollID, setPollID] = useState<string>('');
+
+	useEffect(() => {
+		const queryString = window.location.search;
+		const params = new URLSearchParams(queryString);
+		const _pollID = params.get('pollID');
+		if (_pollID) {
+			setPollID(_pollID);
+			setClientMode(TypeOfClient.Voter);
+		}
+	}, []);
+
 	if (clientMode === TypeOfClient.NotSet) {
 		return (
 			<div className="App _client_not_set">
@@ -33,7 +45,7 @@ export const App = () => {
 	return (
 		<div className="App">
 			{clientMode === TypeOfClient.Creator && <PollCreatorMode />}
-			{clientMode === TypeOfClient.Voter && <PollVoterMode />}
+			{clientMode === TypeOfClient.Voter && <PollVoterMode pollID={pollID} />}
 		</div>
 	);
 };
