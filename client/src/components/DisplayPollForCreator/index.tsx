@@ -1,9 +1,10 @@
 import './DisplayPollForCreator.css';
-import { useEffect, useState } from 'react';
+import { EventHandler, SyntheticEvent, useEffect, useState } from 'react';
 import { Poll } from '../App/utils';
 import { useSocket } from '../../providers/Socket';
 import { useCountdown } from '../../hooks/useTime';
 import { formatTime } from '../../hooks/useTime/utils';
+import { copyToClipboard } from './utils';
 interface DisplayPollForCreatorProps {
 	poll: Poll;
 	pollID: string;
@@ -45,13 +46,30 @@ export const DisplayPollForCreator = ({
 		socket.emit('poll-ended');
 	};
 
+	const handleClickCopyURL = (
+		e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+	) => {
+		const button = e.currentTarget;
+		button.classList.add('--copy-url-anim');
+		setTimeout(() => {
+			button.classList.remove('--copy-url-anim');
+		}, 400);
+		const url = window.location;
+		copyToClipboard(`${url.origin}/?pollID=${pollID}`);
+	};
+
 	return (
 		<div className="DisplayPollForCreator-container">
 			<div className="poll-info">
 				<h2 className="poll-info__title">{poll.title}</h2>
-				<span className="poll-info__id--container">
-					Poll ID: <strong>{pollID}</strong>
-				</span>
+				<button
+					className="poll-info__copy-url-bt"
+					arial-label="copy url"
+					title="copy url"
+					onClick={handleClickCopyURL}
+				>
+					copy url <span>{pollID}</span>
+				</button>
 			</div>
 
 			<div className="timer-container">
