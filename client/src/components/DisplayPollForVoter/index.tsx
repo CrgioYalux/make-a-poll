@@ -2,6 +2,7 @@ import './DisplayPollForVoter.css';
 import { Poll } from '../App/utils';
 import { useState, useEffect, SyntheticEvent } from 'react';
 import { useSocket } from '../../providers/Socket';
+import { PollEnded } from '../PollEnded';
 
 interface DisplayPollProps {
 	poll: Poll;
@@ -70,7 +71,7 @@ export const DisplayPollForVoter = ({ poll, setPoll }: DisplayPollProps) => {
 		return (
 			<>
 				{voteState === null && (
-					<div className="DisplayPoll-container --not-ended">
+					<div className="DisplayPoll-container">
 						<h2>{poll.title}</h2>
 						<form className="voting-form" onSubmit={handleSubmit}>
 							<div className="vote-options-list">
@@ -132,23 +133,5 @@ export const DisplayPollForVoter = ({ poll, setPoll }: DisplayPollProps) => {
 				)}
 			</>
 		);
-	else {
-		let maxNumOfVotes = 0;
-		let winnerOption = 'no-option-voted';
-		for (const vote of poll.votes) {
-			if (vote.numOfVotes > maxNumOfVotes) {
-				maxNumOfVotes = vote.numOfVotes;
-				winnerOption = vote.option;
-			}
-		}
-		return (
-			<div className="DisplayPoll-container --ended">
-				<h2>Poll ended!</h2>
-				<h3>{poll.title}</h3>
-				<h3>
-					wins [{winnerOption}] with [{maxNumOfVotes}] votes
-				</h3>
-			</div>
-		);
-	}
+	else return <PollEnded poll={poll} />;
 };

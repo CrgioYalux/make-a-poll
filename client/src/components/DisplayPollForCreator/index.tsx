@@ -1,5 +1,6 @@
 import './DisplayPollForCreator.css';
-import { EventHandler, SyntheticEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { PollEnded } from '../PollEnded';
 import { Poll } from '../App/utils';
 import { useSocket } from '../../providers/Socket';
 import { useCountdown } from '../../hooks/useTime';
@@ -15,6 +16,7 @@ export const DisplayPollForCreator = ({
 	pollID,
 }: DisplayPollForCreatorProps) => {
 	const { socket } = useSocket();
+	const [isPollEnded, setIsPollEnded] = useState<boolean>(false);
 	const [votes, setVotes] = useState<
 		{ option: string; numOfVotes: number; id: string }[]
 	>(poll.votes);
@@ -46,6 +48,7 @@ export const DisplayPollForCreator = ({
 	const endPoll = () => {
 		if (socket === null) return;
 		socket.emit('poll-ended');
+		setIsPollEnded(true);
 	};
 
 	const handleClickCopyURL = (
@@ -60,83 +63,90 @@ export const DisplayPollForCreator = ({
 		copyToClipboard(`${url.origin}/?pollID=${pollID}`);
 	};
 
-	return (
-		<div className="DisplayPollForCreator-container">
-			<div className="poll-info">
-				<h2 className="poll-info__title">{poll.title}</h2>
-				<button
-					className="poll-info__copy-url-bt"
-					arial-label="copy url"
-					title="copy url"
-					onClick={handleClickCopyURL}
-				>
-					copy url <span>{pollID}</span>
-				</button>
-			</div>
-
-			<div className="timer-container">
-				{poll.timer !== false && (
-					<strong className="timer-container__time-displayer">
-						{formatTime(countdown)}
-					</strong>
-				)}
-				<div className="timer-container__controllers">
-					{poll.timer !== false && (
-						<button
-							className="timer-container__bt timer-container__start-poll-bt"
-							onClick={() => startCountdown()}
-							disabled={isCountdownRunning}
-						>
-							Start poll
-						</button>
-					)}
-					<form
-						className="timer-container__bt timer-container__end-poll-bt"
-						onSubmit={(e) => {
-							e.preventDefault();
-							endPoll();
-							setEndPollBTVisibility((prev) => !prev);
-						}}
+	if (!isPollEnded)
+		return (
+			<div className="DisplayPollForCreator-container">
+				<div className="poll-info">
+					<h2 className="poll-info__title">{poll.title}</h2>
+					<button
+						className="poll-info__copy-url-bt"
+						arial-label="copy url"
+						title="copy url"
+						onClick={handleClickCopyURL}
 					>
-						<input
-							type="checkbox"
-							name="end-poll-bt"
-							id="end-poll-bt"
-							checked={endPollBTVisibility}
-							onChange={() => setEndPollBTVisibility((prev) => !prev)}
-						/>
-						<label htmlFor="end-poll-bt" className="end-poll-bt__controllers">
-							{endPollBTVisibility ? (
-								<>
-									<button className="end-poll-controllers__bt" type="submit">
-										yes
-									</button>
-									<button
-										type="button"
-										className="end-poll-controllers__bt"
-										onClick={() => setEndPollBTVisibility((prev) => !prev)}
-									>
-										no
-									</button>
-								</>
-							) : (
-								<span>End poll</span>
-							)}
-						</label>
-					</form>
+						copy url <span>{pollID}</span>
+					</button>
 				</div>
-			</div>
 
-			<ul className="votes-list">
-				{votes.map((vote) => (
-					<li key={vote.id} className="vote-container">
-						<strong className="vote-container__option">{vote.option}</strong>
-						<span className="vote-container__num-of-votes">
-							{vote.numOfVotes}
-						</span>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
+				<div className="timer-container">
+					{poll.timer !== false && (
+						<strong className="timer-container__time-displayer">
+							{formatTime(countdown)}
+						</strong>
+					)}
+					<div className="timer-container__controllers">
+						{poll.timer !== false && (
+							<button
+								className="timer-container__bt timer-container__start-poll-bt"
+								onClick={() => startCountdown()}
+								disabled={isCountdownRunning}
+							>
+								Start poll
+							</button>
+						)}
+						<form
+							className="timer-container__bt timer-container__end-poll-bt"
+							onSubmit={(e) => {
+								e.preventDefault();
+								endPoll();
+								setEndPollBTVisibility((prev) => !prev);
+							}}
+						>
+							<input
+								type="checkbox"
+								name="end-poll-bt"
+								id="end-poll-bt"
+								checked={endPollBTVisibility}
+								onChange={() => setEndPollBTVisibility((prev) => !prev)}
+							/>
+							<label htmlFor="end-poll-bt" className="end-poll-bt__controllers">
+								{endPollBTVisibility ? (
+									<>
+										<button className="end-poll-controllers__bt" type="submit">
+											yes
+										</button>
+										<button
+											type="button"
+											className="end-poll-controllers__bt"
+											onClick={() => setEndPollBTVisibility((prev) => !prev)}
+										>
+											no
+										</button>
+									</>
+								) : (
+									<span>End poll</span>
+								)}
+							</label>
+						</form>
+					</div>
+				</div>
+
+				<ul className="votes-list">
+					{votes.map((vote) => (
+						<li key={vote.id} className="vote-container">
+							<strong className="vote-container__option">{vote.option}</strong>
+							<span className="vote-container__num-of-votes">
+								{vote.numOfVotes}
+							</span>
+						</li>
+					))}
+				</ul>
+			</div>
+		);
+	else
+		return (
+			<PollEnded
+				poll={{ done: poll.done, timer: poll.timer, title: poll.title, votes }}
+			/>
+		);
 };
