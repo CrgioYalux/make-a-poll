@@ -201,6 +201,12 @@ io.on('connection', (socket) => {
 		}
 		socket.broadcast.to(pollID).emit('poll-ended', JSON.stringify({ poll }));
 	});
+	const waitUntilDeletePoll = setTimeout(() => {
+		polls.delete(pollID);
+	}, 60 * 1000);
+	return () => {
+		clearTimeout(waitUntilDeletePoll);
+	};
 });
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
