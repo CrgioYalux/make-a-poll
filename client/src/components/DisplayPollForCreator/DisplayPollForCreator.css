@@ -63,6 +63,7 @@
 	flex-direction: column;
 	align-items: center;
 	gap: 10px;
+	user-select: none;
 }
 
 .timer-container__time-displayer {
@@ -78,21 +79,20 @@
 	flex-direction: column;
 	align-items: center;
 	gap: 5px;
-	/* contains both start and end buttons */
 }
 
 .timer-container__bt {
-	width: 100px;
-	height: 40px;
+	width: 120px;
+	height: 60px;
 	border: 0;
 	outline: 0;
 	background: transparent;
 	color: var(--secondary);
 	border: 2px solid currentColor;
-	font-size: clamp(0.9rem, 4vw, 1.2rem);
+	font-size: 1.2rem;
+	padding: 0 0.4em;
 	cursor: pointer;
 	text-align: center;
-	padding: 0.2em 0.4em;
 }
 
 .timer-container__controllers > button:disabled {
@@ -123,6 +123,7 @@
 	border-radius: 16px;
 	padding: 0.2em 0;
 	color: var(--primary);
+	font-size: 0.8em;
 	font-family: var(--font-inter-ss);
 	font-weight: 800;
 	background: var(--secondary);

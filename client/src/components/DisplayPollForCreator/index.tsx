@@ -107,7 +107,9 @@ export const DisplayPollForCreator = ({
 								name="end-poll-bt"
 								id="end-poll-bt"
 								checked={endPollBTVisibility}
-								onChange={() => setEndPollBTVisibility((prev) => !prev)}
+								onChange={() => {
+									setEndPollBTVisibility((prev) => !prev);
+								}}
 							/>
 							<label htmlFor="end-poll-bt" className="end-poll-bt__controllers">
 								{endPollBTVisibility ? (
@@ -115,13 +117,12 @@ export const DisplayPollForCreator = ({
 										<button className="end-poll-controllers__bt" type="submit">
 											yes
 										</button>
-										<button
-											type="button"
+										<label
+											htmlFor="end-poll-bt"
 											className="end-poll-controllers__bt"
-											onClick={() => setEndPollBTVisibility((prev) => !prev)}
 										>
 											no
-										</button>
+										</label>
 									</>
 								) : (
 									<span>End poll</span>
