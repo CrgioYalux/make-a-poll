@@ -17,7 +17,10 @@ enum PostState {
 
 const mockPoll: Poll = {
 	done: false,
-	timer: false,
+	timer: {
+		minutes: 5,
+		seconds: 0,
+	},
 	title:
 		"trying, the displaying and styling of the poll from the creator's pov",
 	votes: [

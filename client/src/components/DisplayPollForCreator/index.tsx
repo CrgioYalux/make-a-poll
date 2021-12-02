@@ -23,6 +23,8 @@ export const DisplayPollForCreator = ({
 		to: { minutes: 0, seconds: 0 },
 		autostart: false,
 	});
+	const [endPollBTVisibility, setEndPollBTVisibility] =
+		useState<boolean>(false);
 
 	useEffect(() => {
 		if (socket === null) return;
@@ -73,19 +75,55 @@ export const DisplayPollForCreator = ({
 			</div>
 
 			<div className="timer-container">
-				<strong className="timer-container__time-displayer">
-					{formatTime(countdown)}
-				</strong>
+				{poll.timer !== false && (
+					<strong className="timer-container__time-displayer">
+						{formatTime(countdown)}
+					</strong>
+				)}
 				<div className="timer-container__controllers">
 					{poll.timer !== false && (
 						<button
+							className="timer-container__bt timer-container__start-poll-bt"
 							onClick={() => startCountdown()}
 							disabled={isCountdownRunning}
 						>
 							Start poll
 						</button>
 					)}
-					<button onClick={() => endPoll()}>End poll</button>
+					<form
+						className="timer-container__bt timer-container__end-poll-bt"
+						onSubmit={(e) => {
+							e.preventDefault();
+							endPoll();
+							setEndPollBTVisibility((prev) => !prev);
+						}}
+					>
+						<input
+							type="checkbox"
+							name="end-poll-bt"
+							id="end-poll-bt"
+							checked={endPollBTVisibility}
+							onChange={() => setEndPollBTVisibility((prev) => !prev)}
+						/>
+						<label htmlFor="end-poll-bt" className="end-poll-bt__controllers">
+							{endPollBTVisibility ? (
+								<>
+									<button className="end-poll-controllers__bt" type="submit">
+										yes
+									</button>
+									<button
+										type="button"
+										className="end-poll-controllers__bt"
+										onClick={() => setEndPollBTVisibility((prev) => !prev)}
+									>
+										no
+									</button>
+								</>
+							) : (
+								<span>End poll</span>
+							)}
+						</label>
+					</form>
 				</div>
 			</div>
 
