@@ -4,7 +4,7 @@ import { Poll } from '../App/utils';
 import { DisplayPollForVoter } from '../DisplayPollForVoter';
 import { SocketProvider } from '../../providers/Socket';
 import { getPollByID } from './utils';
-
+import { TypeOfClient } from '../App/utils';
 interface PollVoterModeProps {
 	pollID: string;
 }
@@ -57,7 +57,7 @@ export const PollVoterMode = ({ pollID }: PollVoterModeProps) => {
 	return !poll ? (
 		<span style={{ color: 'white' }}>loading...</span>
 	) : (
-		<SocketProvider pollID={pollID} path="/socket/">
+		<SocketProvider typeOfClient={TypeOfClient.Voter} pollID={pollID}>
 			<DisplayPollForVoter poll={poll} setPoll={setPoll} />
 		</SocketProvider>
 	);

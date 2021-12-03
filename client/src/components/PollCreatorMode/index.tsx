@@ -5,6 +5,7 @@ import { DisplayPollForCreator } from '../DisplayPollForCreator';
 import { CreatePoll } from '../CreatePoll';
 import { postPoll } from './utils';
 import { SocketProvider } from '../../providers/Socket';
+import { TypeOfClient } from '../App/utils';
 
 interface PollCreatorModeProps {}
 
@@ -77,7 +78,7 @@ export const PollCreatorMode = ({}: PollCreatorModeProps) => {
 				</span>
 			)}
 			{postState === PostState.Successful && (
-				<SocketProvider pollID={pollID} path="/socket/">
+				<SocketProvider typeOfClient={TypeOfClient.Creator} pollID={pollID}>
 					<DisplayPollForCreator poll={poll} pollID={pollID} />
 				</SocketProvider>
 			)}

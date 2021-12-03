@@ -1,6 +1,11 @@
 import io, { Socket } from 'socket.io-client';
 import { createContext, useContext, useState, useEffect } from 'react';
 
+enum TypeOfClient {
+	Voter = 'VOTER',
+	Creator = 'CREATOR',
+	NotSet = 'NOTSET',
+}
 interface SocketContextProps {
 	socket: Socket | null;
 	socketID: string;
@@ -15,33 +20,32 @@ export const useSocket = () => useContext(SocketContext);
 interface SocketProviderProps {
 	children: React.ReactNode;
 	pollID: string;
-	path: string;
+	typeOfClient: TypeOfClient;
 }
 export const SocketProvider = ({
 	children,
 	pollID,
-	path,
+	typeOfClient,
 }: SocketProviderProps) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [socketID, setSocketID] = useState<string>('');
 
 	useEffect(() => {
-		if (path && pollID) {
-			const socketConnection = io('http://localhost:5000', {
-				// when NODE_ENV=dev, proxy just isn't enough, manually setting the domain is needed
+		if (pollID) {
+			const socketConnection = io('http://192.168.100.11:5000', {
 				transports: ['websocket', 'polling', 'flashsocket'],
-				path,
+				path: '/socket/',
 				query: {
 					pollID,
+					typeOfClient,
 				},
 			});
 			setSocket(socketConnection);
-			console.log(socketConnection);
 			return () => {
 				socketConnection.close();
 			};
 		}
-	}, [pollID, path]);
+	}, [pollID]);
 
 	useEffect(() => {
 		if (socket === null) return;
@@ -50,16 +54,6 @@ export const SocketProvider = ({
 		});
 		return () => {
 			socket.off('connect');
-		};
-	});
-
-	useEffect(() => {
-		if (socket === null) return;
-		socket.on('send-poll', (data) => {
-			const pollData = JSON.parse(data);
-		});
-		return () => {
-			socket.off('send-poll');
 		};
 	});
 
