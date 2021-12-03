@@ -6,6 +6,7 @@ import { CreatePoll } from '../CreatePoll';
 import { postPoll } from './utils';
 import { SocketProvider } from '../../providers/Socket';
 import { TypeOfClient } from '../App/utils';
+import { Loader } from '../Loader';
 
 interface PollCreatorModeProps {}
 
@@ -16,35 +17,10 @@ enum PostState {
 	Loading = 'LOADING',
 }
 
-const mockPoll: Poll = {
-	done: false,
-	timer: {
-		minutes: 5,
-		seconds: 0,
-	},
-	title:
-		"trying, the displaying and styling of the poll from the creator's pov",
-	votes: [
-		{
-			id: '1',
-			option: 'yes',
-			numOfVotes: 0,
-		},
-		{
-			id: '2',
-			option: 'no',
-			numOfVotes: 1,
-		},
-	],
-};
-
 export const PollCreatorMode = ({}: PollCreatorModeProps) => {
 	const [poll, setPoll] = useState<Poll | null>(null);
-	// const [poll, setPoll] = useState<Poll | null>(mockPoll);
 	const [postState, setPostState] = useState<PostState>(PostState.NotStarted);
-	// const [postState, setPostState] = useState<PostState>(PostState.Successful);
 	const [pollID, setPollID] = useState<string>('');
-	// const [pollID, setPollID] = useState<string>('abc');
 
 	useEffect(() => {
 		if (
@@ -52,36 +28,49 @@ export const PollCreatorMode = ({}: PollCreatorModeProps) => {
 			(postState === PostState.NotStarted || postState === PostState.Error)
 		) {
 			setPostState(PostState.Loading);
-			postPoll(poll)
-				.then((response) => {
-					if (response.data.pollID) {
-						setPollID(response.data.pollID);
-						setPostState(PostState.Successful);
-					}
-				})
-				.catch(() => {
-					setPostState(PostState.Error);
-				});
+			const giveASecondToLoader = setTimeout(() => {
+				postPoll(poll)
+					.then((response) => {
+						if (response.data.pollID) {
+							setPollID(response.data.pollID);
+							setPostState(PostState.Successful);
+						} else {
+							setPostState(PostState.Error);
+						}
+					})
+					.catch(() => {
+						setPostState(PostState.Error);
+					});
+			}, 500);
+			return () => {
+				clearTimeout(giveASecondToLoader);
+			};
 		}
 	}, [poll]);
 
-	return !poll ? (
-		<CreatePoll setPoll={setPoll} />
-	) : (
-		<>
-			{postState === PostState.Loading && (
-				<span style={{ color: 'white' }}>Creating...</span>
-			)}
-			{postState === PostState.Error && (
-				<span style={{ color: 'white' }}>
-					An error has ocurred while creating the poll. Please, try later.
+	if (!poll) return <CreatePoll setPoll={setPoll} />;
+	else
+		return (
+			<>
+				<span className="PollCreatorMode--no-poll">
+					{postState === PostState.Loading && (
+						<>
+							<h3>creating</h3>
+							<Loader />
+						</>
+					)}
+					{postState === PostState.Error && (
+						<>
+							<h3>An error has ocurred while creating the poll</h3>
+							<a href="/">go back</a>
+						</>
+					)}
 				</span>
-			)}
-			{postState === PostState.Successful && (
-				<SocketProvider typeOfClient={TypeOfClient.Creator} pollID={pollID}>
-					<DisplayPollForCreator poll={poll} pollID={pollID} />
-				</SocketProvider>
-			)}
-		</>
-	);
+				{postState === PostState.Successful && (
+					<SocketProvider typeOfClient={TypeOfClient.Creator} pollID={pollID}>
+						<DisplayPollForCreator poll={poll} pollID={pollID} />
+					</SocketProvider>
+				)}
+			</>
+		);
 };
