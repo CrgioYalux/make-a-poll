@@ -1,0 +1,41 @@
+.PollVoterMode--no-poll {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 20px;
+}
+
+.PollVoterMode--no-poll a {
+	width: max-content;
+	color: var(--brand-lightest);
+	font-family: var(--font-roboto-ss);
+	font-weight: bold;
+	text-decoration: none;
+	border-bottom: 2px solid currentColor;
+	font-size: clamp(1rem, 4vw, 1.6rem);
+	padding: 0.2em 0.4em;
+	border-radius: 4px;
+	background: transparent;
+	cursor: pointer;
+	text-shadow: 0 0 30px hsla(0, 50%, 100%, 0.2);
+}
+
+.PollVoterMode--no-poll a:focus {
+	outline-offset: 5px;
+}
+
+.PollVoterMode--no-poll h3 {
+	font-size: clamp(2rem, 4vw, 4rem);
+	font-family: var(--font-inter-ss);
+	color: var(--secondary);
+}
+
+@media (min-width: 1024px) {
+	.PollVoterMode--no-poll a {
+		transition: background-color 0.3s, border-color 0.3s;
+	}
+	.PollVoterMode--no-poll a:hover {
+		background: var(--brand-light);
+		border-color: var(--brand-light);
+	}
+}

@@ -5,6 +5,7 @@ import { DisplayPollForVoter } from '../DisplayPollForVoter';
 import { SocketProvider } from '../../providers/Socket';
 import { getPollByID } from './utils';
 import { TypeOfClient } from '../App/utils';
+import { Loader } from '../Loader';
 interface PollVoterModeProps {
 	pollID: string;
 }
@@ -16,24 +17,6 @@ enum FetchState {
 	NotStarted = 'NOTSTARTED',
 }
 
-const mockPoll: Poll = {
-	title: 'is this a mock poll?',
-	votes: [
-		{
-			option: 'yes',
-			numOfVotes: 0,
-			id: 'yes',
-		},
-		{
-			option: 'no',
-			numOfVotes: 2,
-			id: 'no',
-		},
-	],
-	timer: false,
-	done: false,
-};
-
 export const PollVoterMode = ({ pollID }: PollVoterModeProps) => {
 	const [poll, setPoll] = useState<Poll | null>(null);
 	const [fetchState, setFetchState] = useState<FetchState>(
@@ -42,23 +25,41 @@ export const PollVoterMode = ({ pollID }: PollVoterModeProps) => {
 
 	useEffect(() => {
 		setFetchState(FetchState.Loading);
-		getPollByID(pollID)
-			.then((response) => {
-				if (response.data.poll) {
-					setPoll(response.data.poll);
-					setFetchState(FetchState.Successful);
-				}
-			})
-			.catch(() => {
-				setFetchState(FetchState.Error);
-			});
+		const giveASecondToLoader = setTimeout(() => {
+			getPollByID(pollID)
+				.then((response) => {
+					if (response.data.poll) {
+						setPoll(response.data.poll);
+						setFetchState(FetchState.Successful);
+					} else {
+						setFetchState(FetchState.Error);
+					}
+				})
+				.catch(() => {
+					setFetchState(FetchState.Error);
+				});
+		}, 500);
+		return () => {
+			clearTimeout(giveASecondToLoader);
+		};
 	}, [pollID]);
 
-	return !poll ? (
-		<span style={{ color: 'white' }}>loading...</span>
-	) : (
-		<SocketProvider typeOfClient={TypeOfClient.Voter} pollID={pollID}>
-			<DisplayPollForVoter poll={poll} setPoll={setPoll} />
-		</SocketProvider>
-	);
+	if (!poll)
+		return (
+			<span className="PollVoterMode--no-poll">
+				{fetchState === FetchState.Loading && <Loader />}
+				{fetchState === FetchState.Error && (
+					<>
+						<h3>Poll not found</h3>
+						<a href="/">go back</a>
+					</>
+				)}
+			</span>
+		);
+	else
+		return (
+			<SocketProvider typeOfClient={TypeOfClient.Voter} pollID={pollID}>
+				<DisplayPollForVoter poll={poll} setPoll={setPoll} />
+			</SocketProvider>
+		);
 };
