@@ -4,6 +4,7 @@ import http from 'http';
 import path from 'path';
 import { Server, Socket } from 'socket.io';
 import { v4 } from 'uuid';
+import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript';
 
 const pathToBuild =
 	process.env.NODE_ENV === 'dev'
@@ -60,7 +61,7 @@ app.post('/polls', (request, response) => {
 		const pollID = v4();
 		polls.set(pollID, {
 			title: data.title,
-			author: request.socket.remoteAddress,
+			author: '',
 			votes: data.votes,
 			voters: [],
 			timer: data.timer,
@@ -105,14 +106,26 @@ enum VotingProcessState {
 	SuccessfullyVoted = 'SUCCESSFULLYVOTED',
 }
 
+enum TypeOfClient {
+	Voter = 'VOTER',
+	Creator = 'CREATOR',
+	NotSet = 'NOTSET',
+}
+
 io.on('connection', (socket) => {
-	const { pollID } = socket.handshake.query as {
+	const { pollID, typeOfClient } = socket.handshake.query as {
 		pollID: string;
+		typeOfClient: TypeOfClient;
 	};
 	const { remoteAddress } = socket.request.socket;
 	const { id } = socket;
-
 	socket.join(pollID);
+	if (typeOfClient === TypeOfClient.Creator) {
+		const poll = polls.get(pollID);
+		if (poll && remoteAddress) {
+			poll.author = remoteAddress;
+		}
+	}
 
 	socket.on('client-vote', (data) => {
 		const _data = JSON.parse(data) as {
@@ -175,7 +188,9 @@ io.on('connection', (socket) => {
 				} else {
 					socket.emit(
 						'vote-state',
-						JSON.stringify({ votingState: VotingProcessState.Error_PollEnded }),
+						JSON.stringify({
+							votingState: VotingProcessState.Error_PollEnded,
+						}),
 					);
 				}
 			} else {
@@ -200,14 +215,24 @@ io.on('connection', (socket) => {
 			poll.done = true;
 		}
 		socket.broadcast.to(pollID).emit('poll-ended', JSON.stringify({ poll }));
+		const waitUntilDeletePoll = setTimeout(() => {
+			polls.delete(pollID);
+		}, 60 * 1000);
+
+		return () => {
+			clearTimeout(waitUntilDeletePoll);
+		};
 	});
-	const waitUntilDeletePoll = setTimeout(() => {
-		polls.delete(pollID);
-	}, 60 * 1000);
-	return () => {
-		clearTimeout(waitUntilDeletePoll);
-	};
+
+	socket.on('disconnect', () => {
+		const poll = polls.get(pollID);
+
+		if (poll && poll.author === remoteAddress) {
+			polls.delete(pollID);
+		}
+	});
 });
+
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
 	console.log(`server listening on ${PORT}`);
