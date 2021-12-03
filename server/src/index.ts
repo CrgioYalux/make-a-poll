@@ -226,8 +226,11 @@ io.on('connection', (socket) => {
 
 	socket.on('disconnect', () => {
 		const poll = polls.get(pollID);
-
-		if (poll && poll.author === remoteAddress) {
+		if (
+			poll &&
+			poll.author === remoteAddress &&
+			typeOfClient === TypeOfClient.Creator
+		) {
 			polls.delete(pollID);
 		}
 	});
